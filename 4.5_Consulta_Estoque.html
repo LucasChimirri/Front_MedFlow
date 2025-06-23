@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedFlow - Consulta de Estoque</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --azul-escuro : #11234a;
+            --azul-claro  : #1f3a78;
+            --azul-hover  : #1a2d50;
+            --cinza-claro : #e5f2f0;
+            --branco      : #ffffff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--cinza-claro);
+            color: var(--azul-escuro);
+            text-align: center;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .medflow-header {
+            margin-bottom: 30px;
+        }
+
+        .medflow-header h1 {
+            color: var(--azul-escuro);
+            font-size: 80px;
+            margin-bottom: 10px;
+        }
+
+        .consulta-panel {
+            background-color: var(--azul-escuro);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .consulta-box {
+            background-color: var(--branco);
+            padding: 40px;
+        }
+
+        .consulta-box h2 {
+            color: var(--azul-escuro);
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--azul-escuro);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: var(--branco);
+            color: var(--azul-escuro);
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--azul-claro);
+            box-shadow: 0 0 0 2px rgba(31, 58, 120, 0.1);
+        }
+
+        .btn {
+            background-color: var(--azul-escuro);
+            color: var(--branco);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background-color: var(--azul-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn.block {
+            width: 100%;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--cinza-claro);
+            border-radius: 8px;
+            border-left: 4px solid var(--azul-claro);
+            display: none;
+            text-align: left;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .result.error {
+            background-color: #fed7d7;
+            border-left-color: #e53e3e;
+            color: #c53030;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result h3 {
+            color: var(--azul-escuro);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: var(--azul-escuro);
+        }
+
+        .result-value {
+            color: var(--azul-escuro);
+            font-weight: 500;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--branco);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .medflow-header h1 {
+                font-size: 60px;
+            }
+
+            .consulta-box {
+                padding: 30px 20px;
+            }
+
+            body {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="medflow-header">
+        <h1>MedFlow</h1>
+    </div>
+
+    <div class="consulta-panel">
+        <div class="consulta-box">
+            <h2>Consultar Medicamento</h2>
+
+            <form id="consultaForm">
+                <div class="form-group">
+                    <label for="medicamentoId">ID do Medicamento</label>
+                    <input type="number" id="medicamentoId" name="medicamentoId" required min="1" placeholder="Digite o ID do medicamento">
+                </div>
+
+                <button type="submit" class="btn block" id="consultarBtn">
+                    Consultar Estoque
+                </button>
+            </form>
+
+            <div id="resultado" class="result">
+                <!-- Resultado aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('consultaForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const medicamentoId = document.getElementById('medicamentoId').value;
+            const btn = document.getElementById('consultarBtn');
+            const resultado = document.getElementById('resultado');
+
+            if (!medicamentoId) {
+                mostrarErro('Por favor, informe o ID do medicamento');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Consultando...';
+            resultado.classList.remove('show', 'error');
+
+            try {
+                const response = await fetch(`https://apex.oracle.com/pls/apex/mvselli_senac/medflow/medicamento/estoque/${medicamentoId}`);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                mostrarResultado(data);
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarErro('Erro ao consultar estoque. Verifique o ID do medicamento e tente novamente.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Consultar Estoque';
+            }
+        });
+
+        function mostrarResultado(data) {
+            const resultado = document.getElementById('resultado');
+            resultado.classList.remove('error');
+
+            let html = '<h3>Informações do Estoque</h3>';
+
+            const item = Array.isArray(data) ? data[0] :
+                         data.items ? data.items[0] :
+                         typeof data === 'object' ? data : null;
+
+            if (!item) {
+                mostrarErro('Nenhum dado encontrado para este ID.');
+                return;
+            }
+
+            const ordemCampos = [
+                "id_medicamento",
+                "nome_medicamento",
+                "via_aplicacao",
+                "qtde_estoque",
+                "qtde_minima_aceitavel",
+                "data_validade",
+                "valor_custo",
+                "fabricante"
+            ];
+
+            ordemCampos.forEach(key => {
+                if (item.hasOwnProperty(key)) {
+                    let valor = item[key];
+
+                    if (key === "data_validade") {
+                        valor = new Date(valor).toLocaleDateString('pt-BR');
+                    }
+
+                    if (key === "valor_custo") {
+                        valor = `R$ ${valor.toFixed(2).replace('.', ',')}`;
+                    }
+
+                    html += `<div class="result-item">
+                        <span class="result-label">${formatarLabel(key)}:</span>
+                        <span class="result-value">${valor}</span>
+                    </div>`;
+                }
+            });
+
+            resultado.innerHTML = html;
+            resultado.classList.add('show');
+        }
+
+        function mostrarErro(mensagem) {
+            const resultado = document.getElementById('resultado');
+            resultado.classList.add('error');
+            resultado.innerHTML = `<h3>Erro</h3><p>${mensagem}</p>`;
+            resultado.classList.add('show');
+        }
+
+        function formatarLabel(key) {
+            const labels = {
+                "id_medicamento": "ID do Medicamento",
+                "nome_medicamento": "Nome do Medicamento",
+                "via_aplicacao": "Via de Aplicação",
+                "qtde_estoque": "Quantidade em Estoque",
+                "qtde_minima_aceitavel": "Quantidade Mínima Aceitável",
+                "data_validade": "Data de Validade",
+                "valor_custo": "Valor de Custo",
+                "fabricante": "Fabricante"
+            };
+            return labels[key] || key;
+        }
+    </script>
+</body>
+</html>

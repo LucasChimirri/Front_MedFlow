@@ -1,0 +1,127 @@
+/* Reset e Box-Sizing */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Variáveis de cor */
+:root {
+  --azul-escuro : #11234a;
+  --azul-claro  : #1f3a78;   /* azul-médio, container do form */
+  --azul-hover  : #1a2d50;
+  --cinza-claro : #e5f2f0;
+  --branco      : #ffffff;
+}
+
+/* BODY */
+body {
+  font-family: Arial, sans-serif;
+  background-color: var(--cinza-claro);
+  color: var(--azul-escuro);
+  text-align: center;
+  padding: 20px;
+}
+
+/* Título “MedFlow” acima do painel */
+.login-title {
+  color: var(--azul-escuro);
+  font-size: 80px;
+  margin: 40px 0 20px;
+}
+
+/* PAINEL CENTRAL */
+.login-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 700px;
+  margin: 0 auto 60px;
+  background-color: var(--azul-escuro);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+/* CAIXA DO FORMULÁRIO (AZUL-CLARO) */
+.login-box {
+  background-color: var(--azul-claro);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.login-box h2 {
+  color: var(--branco);
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+.login-box .form-group {
+  margin-bottom: 20px;
+}
+.login-box input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: var(--branco);
+  color: var(--azul-escuro);
+}
+
+/* Botão ocupa toda a largura do form */
+.btn.block {
+  width: 100%;
+}
+
+/* ÁREA DE IMAGEM */
+.login-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.login-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+  .login-panel {
+    grid-template-columns: 1fr;
+  }
+  .login-image {
+    display: none;
+  }
+}
+/* === Botão “Entrar” Turbinado === */
+.login-box .btn.block {
+  display: inline-block;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, var(--azul-hover), var(--azul-escuro));
+  color: var(--branco);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: 
+    background 0.3s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Hover */
+.login-box .btn.block:hover {
+  background: linear-gradient(135deg, var(--azul-escuro), var(--azul-hover));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* Pressed */
+.login-box .btn.block:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}

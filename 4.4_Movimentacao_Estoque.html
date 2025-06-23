@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedFlow - Movimentação de Medicamentos</title>
+  <style>
+    /* Reset e Box-Sizing */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --azul-escuro: #11234a;
+      --azul-claro: #1f3a78;
+      --azul-hover: #1a2d50;
+      --cinza-claro: #e5f2f0;
+      --branco: #ffffff;
+      --verde-claro: #48bb78;
+      --vermelho-claro: #f56565;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--cinza-claro);
+      color: var(--azul-escuro);
+      text-align: center;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .medflow-header {
+      margin-bottom: 30px;
+    }
+
+    .medflow-header h1 {
+      color: var(--azul-escuro);
+      font-size: 80px;
+      margin-bottom: 10px;
+    }
+
+    .movimentacao-panel {
+      background-color: var(--azul-escuro);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      max-width: 700px;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+
+    .movimentacao-box {
+      background-color: var(--branco);
+      padding: 40px;
+    }
+
+    .movimentacao-box h2 {
+      color: var(--azul-escuro);
+      font-size: 28px;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      color: var(--azul-escuro);
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: var(--branco);
+      color: var(--azul-escuro);
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--azul-claro);
+      box-shadow: 0 0 0 2px rgba(31, 58, 120, 0.1);
+    }
+
+    .tipo-movimento {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .movimento-option {
+      position: relative;
+    }
+
+    .movimento-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .movimento-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-color: var(--branco);
+      font-weight: 600;
+      text-align: center;
+      color: var(--azul-escuro);
+    }
+
+    .movimento-option input[type="radio"]:checked + label {
+      border-color: var(--azul-claro);
+      background-color: var(--azul-claro);
+      color: var(--branco);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(31, 58, 120, 0.2);
+    }
+
+    .entrada-option input[type="radio"]:checked + label {
+      border-color: var(--verde-claro);
+      background-color: var(--verde-claro);
+    }
+
+    .baixa-option input[type="radio"]:checked + label {
+      border-color: var(--vermelho-claro);
+      background-color: var(--vermelho-claro);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .btn {
+      background-color: var(--azul-escuro);
+      color: var(--branco);
+      border: none;
+      padding: 14px 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:hover {
+      background-color: var(--azul-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn.block {
+      width: 100%;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: var(--cinza-claro);
+      border-radius: 8px;
+      border-left: 4px solid var(--azul-claro);
+      display: none;
+      text-align: left;
+    }
+
+    .result.show {
+      display: block;
+      animation: slideIn 0.5s ease;
+    }
+
+    .result.success {
+      background-color: #f0fff4;
+      border-left-color: var(--verde-claro);
+    }
+
+    .result.error {
+      background-color: #fed7d7;
+      border-left-color: #e53e3e;
+      color: #c53030;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result h3 {
+      color: var(--azul-escuro);
+      margin-bottom: 15px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result.success h3 {
+      color: var(--verde-claro);
+    }
+
+    .result.error h3 {
+      color: #e53e3e;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--branco);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .medflow-header h1 {
+        font-size: 60px;
+      }
+
+      .movimentacao-box {
+        padding: 30px 20px;
+      }
+
+      .form-row, .tipo-movimento {
+        grid-template-columns: 1fr;
+      }
+
+      body {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="medflow-header">
+    <h1>MedFlow</h1>
+  </div>
+
+  <div class="movimentacao-panel">
+    <div class="movimentacao-box">
+      <h2>Registrar Movimentação</h2>
+
+      <form id="movimentacaoForm">
+        <div class="form-group">
+          <label>Tipo de Movimento</label>
+          <div class="tipo-movimento">
+            <div class="movimento-option entrada-option">
+              <input type="radio" id="entrada" name="tipoMovimento" value="ENTRADA" required>
+              <label for="entrada">ENTRADA</label>
+            </div>
+            <div class="movimento-option baixa-option">
+              <input type="radio" id="baixa" name="tipoMovimento" value="BAIXA" required>
+              <label for="baixa">BAIXA</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="idMedicamento">ID do Medicamento</label>
+            <input type="number" id="idMedicamento" name="idMedicamento" required min="1" placeholder="Ex: 123">
+          </div>
+
+          <div class="form-group">
+            <label for="quantidade">Quantidade</label>
+            <input type="number" id="quantidade" name="quantidade" required min="1" placeholder="Ex: 50">
+          </div>
+        </div>
+
+        <button type="submit" class="btn block" id="movimentarBtn">Registrar Movimentação</button>
+      </form>
+
+      <div id="resultado" class="result"></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('movimentacaoForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const tipoMovimento = formData.get('tipoMovimento');
+      const idMedicamento = parseInt(formData.get('idMedicamento'));
+      const quantidade = parseInt(formData.get('quantidade'));
+
+      const btn = document.getElementById('movimentarBtn');
+      const resultado = document.getElementById('resultado');
+
+      if (!tipoMovimento || !idMedicamento || !quantidade) {
+        mostrarErro('Por favor, preencha todos os campos obrigatórios');
+        return;
+      }
+
+      const dadosMovimentacao = {
+        tipo_movimento: tipoMovimento,
+        qtde_movimentada: quantidade,
+        id_medicamento: idMedicamento
+      };
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Processando...';
+      resultado.classList.remove('show');
+
+      try {
+        const response = await fetch('https://apex.oracle.com/pls/apex/mvselli_senac/medflow/medicamento/movimentacao', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dadosMovimentacao)
+        });
+
+        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+
+        const data = await response.json();
+        mostrarSucesso(dadosMovimentacao, data);
+        document.getElementById('movimentacaoForm').reset();
+      } catch (error) {
+        mostrarErro(`Erro ao registrar movimentação: ${error.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Registrar Movimentação';
+      }
+    });
+
+    function mostrarSucesso(dadosEnviados, resposta) {
+      const resultado = document.getElementById('resultado');
+      resultado.classList.remove('error');
+      resultado.classList.add('success');
+
+      const tipoIcon = dadosEnviados.tipo_movimento === 'ENTRADA' ? '⬆️' : '⬇️';
+
+      let html = `
+        <h3>Movimentação Registrada com Sucesso!</h3>
+        <div style="margin-top: 10px;">
+          <p><strong>Tipo:</strong> ${dadosEnviados.tipo_movimento}</p>
+          <p><strong>ID Medicamento:</strong> ${dadosEnviados.id_medicamento}</p>
+          <p><strong>Quantidade:</strong> ${dadosEnviados.qtde_movimentada}</p>
+        </div>
+      `;
+
+      if (resposta && typeof resposta === 'object') {
+        const textoResposta = Object.values(resposta).join(' | ');
+        html += `
+          <div style="margin-top: 15px;">
+            <p><strong>Resposta do Servidor:</strong> ${textoResposta}</p>
+          </div>
+        `;
+      }
+
+      resultado.innerHTML = html;
+      resultado.classList.add('show');
+    }
+
+    function mostrarErro(mensagem) {
+      const resultado = document.getElementById('resultado');
+      resultado.classList.remove('success');
+      resultado.classList.add('error');
+      resultado.innerHTML = `<h3>Erro</h3><p>${mensagem}</p>`;
+      resultado.classList.add('show');
+    }
+  </script>
+</body>
+</html>
